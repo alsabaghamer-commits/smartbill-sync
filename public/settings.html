@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"/><title>SmartBill Sync • Setări</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;margin:24px auto;padding:0 16px}.card{border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px}input,select,textarea{padding:10px;border:1px solid #e5e7eb;border-radius:8px;width:100%}button{padding:10px 16px;border:0;border-radius:8px;background:#111827;color:#fff;cursor:pointer}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ok{color:#16a34a}.err{color:#dc2626}.muted{color:#6b7280}</style></head>
+<body><h1>SmartBill Sync • Setări</h1><p class="muted">Detectează serii și gestiuni din SmartBill, setează gestiunea implicită și maparea către Location-urile Shopify.</p>
+<div class="card"><button onclick="loadMeta()">Încarcă serii & gestiuni din SmartBill</button><p id="meta" class="muted">—</p></div>
+<div class="card"><h3>Preferințe</h3><div class="row">
+<label>Serie implicită <input id="series" placeholder="SB"/></label>
+<label>Gestiune implicită <input id="warehouse" placeholder="Magazin 2"/></label>
+<label>TVA implicit (%) <input id="vat" type="number" value="19"/></label>
+<label>Auto send PDF <select id="sendpdf"><option>true</option><option>false</option></select></label>
+<label>Auto Invoice la Paid <select id="autoinv"><option>false</option><option>true</option></select></label>
+<label>Auto Credit Note la Refund <select id="autocr"><option>true</option><option>false</option></select></label>
+</div><p><button onclick="save()">Salvează setări</button> <span id="s" class="muted">—</span></p></div>
+<div class="card"><h3>Mapare gestiuni SmartBill → Shopify Location</h3><p class="muted">Editează JSON-ul (cheie = gestiune SmartBill, valoare = Location ID Shopify).</p><textarea id="map" rows="10">{}</textarea><p><button onclick="saveMap()">Salvează maparea</button> <span id="m" class="muted">—</span></p></div>
+<script>
+async function loadMeta(){const r=await fetch('/api/sb/meta');const d=await r.json();document.getElementById('meta').innerHTML='<b>Serii:</b> '+(d.series||[]).join(', ')+'<br/><b>Gestiuni:</b> '+(d.warehouses||[]).join(', ')}
+async function save(){const p={defaultSeries:document.getElementById('series').value.trim(),defaultWarehouse:document.getElementById('warehouse').value.trim(),vatDefault:Number(document.getElementById('vat').value),autoSendPdf:document.getElementById('sendpdf').value==='true',autoInvoice:document.getElementById('autoinv').value==='true',autoCreditNote:document.getElementById('autocr').value==='true'};const r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});document.getElementById('s').textContent=r.ok?'✔ Salvat':'✖ Eroare'}
+async function saveMap(){try{const map=JSON.parse(document.getElementById('map').value);const r=await fetch('/api/map',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(map)});document.getElementById('m').textContent=r.ok?'✔ Salvat':'✖ Eroare'}catch(e){document.getElementById('m').textContent='✖ JSON invalid'}};
+</script></body></html>

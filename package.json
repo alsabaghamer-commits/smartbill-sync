@@ -1,0 +1,16 @@
+{
+  "name": "smartbill-sync-shopify",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": { "dev": "node server.js", "start": "NODE_ENV=production node server.js" },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0",
+    "node-cron": "^3.0.3",
+    "raw-body": "^2.5.2"
+  }
+}

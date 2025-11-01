@@ -1,0 +1,9 @@
+{
+  "autoInvoice": false,
+  "autoCreditNote": true,
+  "autoSendPdf": true,
+  "defaultSeries": "SB",
+  "defaultWarehouse": "Magazin 2",
+  "warehouseMap": {},
+  "vatDefault": 19
+}

@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"/><title>SmartBill Sync • Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;margin:24px auto;padding:0 16px}.grid{display:grid;grid-template-columns:1fr;gap:16px}.card{border:1px solid #e5e7eb;border-radius:12px;padding:16px}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}input,select{padding:10px;border:1px solid #e5e7eb;border-radius:8px}button{padding:10px 16px;border:0;border-radius:8px;background:#111827;color:#fff;cursor:pointer}.ok{color:#16a34a}.err{color:#dc2626}.muted{color:#6b7280}a.btn{display:inline-block;padding:10px 16px;border-radius:8px;background:#2563eb;color:#fff;text-decoration:none}</style></head>
+<body><h1>SmartBill Sync • Dashboard</h1><p class="muted">Emitere manuală documente și status sincron stocuri.</p>
+<div class="grid">
+<div class="card"><h3>Emitere document</h3><div class="row">
+<div><label>Număr sau ID comandă</label><br/><input id="order" placeholder="#1001 sau 123456789"/></div>
+<div><label>Tip document</label><br/><select id="docType"><option value="invoice">Factură</option><option value="proforma">Proformă</option></select></div>
+<div><label>Gestiune (opțional)</label><br/><input id="warehouse" placeholder="Ex: Magazin 2"/></div>
+<div><button onclick="emitDoc()">Emite</button></div></div><p id="status" class="muted">—</p></div>
+<div class="card"><h3>Notă de credit</h3><div class="row">
+<div><label>Număr sau ID comandă</label><br/><input id="orderCredit" placeholder="#1001 sau 123456789"/></div>
+<div><label>Motiv</label><br/><input id="reason" placeholder="Retur / anulare / corecție"/></div>
+<div><button onclick="creditNote()">Emite credit</button></div></div><p id="statusCredit" class="muted">—</p></div>
+<div class="card"><h3>Setări și gestiuni</h3><a class="btn" href="/admin/settings">Deschide setări</a></div>
+</div>
+<script>
+async function emitDoc(){const s=document.getElementById('status');s.textContent='Se procesează…';try{const r=await fetch('/actions/document',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderRef:document.getElementById('order').value.trim(),type:document.getElementById('docType').value,warehouse:document.getElementById('warehouse').value.trim()||null})});const d=await r.json();if(r.ok){s.innerHTML=`<span class="ok">✔ ${d.docType} emis:</span> ${d.number||''} ${d.pdfUrl? '• <a target="_blank" href="'+d.pdfUrl+'">PDF</a>':''}`}else{s.innerHTML=`<span class="err">✖ Eroare:</span> ${d.error||r.statusText}`}}catch(e){s.innerHTML=`<span class="err">✖ Eroare rețea</span>`}}
+async function creditNote(){const s=document.getElementById('statusCredit');s.textContent='Se procesează…';try{const r=await fetch('/actions/credit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderRef:document.getElementById('orderCredit').value.trim(),reason:document.getElementById('reason').value.trim()})});const d=await r.json();if(r.ok){s.innerHTML=`<span class="ok">✔ Credit emis:</span> ${d.number||''} ${d.pdfUrl? '• <a target="_blank" href="'+d.pdfUrl+'">PDF</a>':''}`}else{s.innerHTML=`<span class="err">✖ Eroare:</span> ${d.error||r.statusText}`}}catch(e){s.innerHTML=`<span class="err">✖ Eroare rețea</span>`}}</script>
+</body></html>
