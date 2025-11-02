@@ -1,1 +1,43 @@
-<!doctype html><html><body><h1>SmartBill Sync • Dashboard</h1><p>Server running.</p><p><a href='/admin/settings'>Setări</a></p></body></html>
+<!doctype html><html><head><meta charset="utf-8"/>
+<title>SmartBill Sync • Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+ body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:980px;margin:24px auto;padding:0 16px}
+ .card{border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px}
+ .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+ input,select{padding:10px;border:1px solid #e5e7eb;border-radius:8px}
+ button{padding:10px 16px;border:0;border-radius:8px;background:#111827;color:#fff;cursor:pointer}
+ .ok{color:#16a34a}.err{color:#dc2626}.muted{color:#6b7280} a.btn{padding:10px 16px;border-radius:8px;background:#2563eb;color:#fff;text-decoration:none}
+</style></head>
+<body>
+<h1>SmartBill Sync • Dashboard</h1>
+<p class="muted">Emitere manuală documente și acces rapid la setări.</p>
+
+<div class="card">
+  <h3>Emitere document</h3>
+  <div class="row">
+    <div><label>Număr/ID comandă</label><br/><input id="order" placeholder="#1001 sau 123456789"/></div>
+    <div><label>Tip</label><br/><select id="docType"><option value="invoice">Factură</option><option value="proforma">Proformă</option></select></div>
+    <div><label>Gestiune (opțional)</label><br/><input id="warehouse" placeholder="Ex: Magazin 2"/></div>
+    <div><button onclick="emitDoc()">Emite</button></div>
+  </div>
+  <p id="status" class="muted">—</p>
+</div>
+
+<div class="card">
+  <a class="btn" href="/admin/settings">Deschide setări</a>
+</div>
+
+<script>
+async function emitDoc(){
+  const s=document.getElementById('status'); s.textContent='Se procesează…';
+  try{
+    const r=await fetch('/actions/document',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({orderRef:document.getElementById('order').value.trim(),type:document.getElementById('docType').value,warehouse:document.getElementById('warehouse').value.trim()||null})});
+    const d=await r.json();
+    if(r.ok){ s.innerHTML=`<span class="ok">✔ ${d.docType} emisă:</span> ${d.number||''} ${d.pdfUrl? '• <a target="_blank" href="'+d.pdfUrl+'">PDF</a>':''}` }
+    else{ s.innerHTML=`<span class="err">✖ Eroare:</span> ${d.error||r.statusText}` }
+  }catch(e){ s.innerHTML=`<span class="err">✖ Eroare rețea</span>` }
+}
+</script>
+</body></html>
